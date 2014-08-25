@@ -44,25 +44,32 @@
       init: function () {
         var self = this;
 
-        var defaultControls = $('<div/>', { 'class' : 'cropControls' })
-              .append($('<span>'+this.options.label+'</span>'))
-              .append($('<button/>', { 'class' : 'cropZoomIn' }).on('click', $.proxy(this.zoomIn, this)))
-              .append($('<button/>', { 'class' : 'cropZoomOut' }).on('click', $.proxy(this.zoomOut, this)));
-
-        this.$frame.append(this.options.controls || defaultControls);
-        
-        if (this.options.showSaveControls == true) {
+        if (this.options.disableControls != true) {
+          var defaultControls = $('<div/>', { 'class' : 'cropControls' })
+                .append($('<span>'+this.options.label+'</span>'))
+                .append($('<button/>', { 'class' : 'cropZoomIn' }).on('click', $.proxy(this.zoomIn, this)))
+                .append($('<button/>', { 'class' : 'cropZoomOut' }).on('click', $.proxy(this.zoomOut, this)));
+          
+          this.$frame.append(this.options.controls || defaultControls);
+          
+          if (this.options.showSaveControls == true) {
             var saveControlsTop = $('<div/>', { 'class' : 'cropControls top' })
                 .append($('<span class="cancel-control">Cancel</span>').on('click', $.proxy(this.doCancel, this)))
                 .append($('<span class="save-control">Save</span>').on('click', $.proxy(this.doSave, this)))
-                
+            
             this.$frame.append(saveControlsTop);
+          }
         }
         
         this.updateOptions();
         
-        this.$image.css('cursor','move');
+        if (this.options.disableControls == true) {
+          this.$image.css('cursor','default');
+          return;
+        }
 
+        this.$image.css('cursor','move');
+        
         if (typeof $.fn.hammer === 'function' || typeof Hammer !== 'undefined') {
           var hammerit, dragData;
           if (typeof $.fn.hammer === 'function')
@@ -159,7 +166,12 @@
             self.setCrop.call(self, self.options.result);
           else
             self.zoom.call(self, self.minPercent);
-          self.$image.fadeIn('fast');
+          if (!self.options.disableControls){
+            self.$image.fadeIn('fast');
+          }
+          else {
+            self.$image.show();
+          }
           self.onLoad();
         };
       },
